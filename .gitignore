@@ -1,0 +1,17 @@
+# Source documents (CLSI / IQMH guidance, spreadsheet, report screenshots,
+# calibrator traceability sheets): kept locally only. The CLSI document is
+# licensed and must not be redistributed.
+references/
+
+# Generated: static site (Rscript build_site.R) and project-local R library
+site/
+.Rlib/
+
+# R, OS and editor files
+.Rhistory
+.RData
+.Rproj.user/
+.DS_Store
+
+# Local Claude Code settings
+.claude/
