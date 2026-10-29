@@ -1,5 +1,7 @@
 # Top-down measurement uncertainty (MU) calculator
 
+**Live:** https://shucez.github.io/mu-topdown/ (GitHub Pages) and https://home.cc.umanitoba.ca/~zhangs57/mu/ (UofM).
+
 A browser-only R Shiny app (compiled with [shinylive](https://posit-dev.github.io/r-shinylive/)) that estimates measurement uncertainty from IQC and EQA/PT data, following the IQMH *Guidance on Measurement Uncertainty for Medical Laboratories* (2014) and CLSI C51-A. All calculations run in the visitor's browser (webR). No data are sent to any server.
 
 ## Files
@@ -14,6 +16,7 @@ A browser-only R Shiny app (compiled with [shinylive](https://posit-dev.github.i
 | `tests/test_mu_topdown_core.R` | Validation of the core. IQC: CLSI C51-A ANOVA examples (Ex 4, Ex 6a, App B) and identity with R's `anova()`. Bias: IQMH Appendices A–C, the CAP screenshot, and the bias/combination intermediates of the spreadsheet the example comes from. Also IQMH and CLSI combination, conversion and rounding examples. |
 | `tests/make_example_json.R` | Rebuilds the example JSON from the workbook values. |
 | `build_site.R` | Installs missing packages into `.Rlib/`, runs the tests, exports `app/` to `site/` with shinylive, and writes `.htaccess`. |
+| `.github/workflows/deploy-pages.yml` | On every push to `main`: installs R, runs `build_site.R` (tests, then export) and publishes `site/` to GitHub Pages. |
 | `site/` | Generated static website (not in the repository). Upload its contents to `public_html`. |
 | `references/` | Source documents kept locally and **not** in the repository: the CLSI and IQMH guidance, the spreadsheet, the report screenshots and the calibrator traceability sheets. The CLSI document is licensed and must not be redistributed. |
 
@@ -34,6 +37,10 @@ Rscript build_site.R
 ```
 
 `build_site.R` installs `shinylive` into `.Rlib/` on first use. It needs internet access to CRAN, GitHub (shinylive web assets) and repo.r-wasm.org (WebAssembly R packages), and it stops if any validation test fails.
+
+## Deploy to GitHub Pages
+
+Automatic: every push to `main` runs `.github/workflows/deploy-pages.yml`, which rebuilds the site and publishes it at https://shucez.github.io/mu-topdown/ after a few minutes (repository Settings → Pages → Source: GitHub Actions). If a validation test fails, nothing is published. A run can also be started by hand from the Actions tab ("Run workflow"). GitHub Pages caches files for about 10 minutes, so visitors may see the previous version briefly after an update.
 
 ## Deploy to `public_html`
 
