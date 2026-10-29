@@ -415,6 +415,40 @@ ui <- page_navbar(
           Shiny.setInputValue('print_req', Date.now(), {priority: 'event'});
         }
       });
+
+      // Downloads (Save inputs, calculation code). In the static (Shinylive)
+      // site the file exists only inside the page's service worker, but some
+      // browsers (e.g. Edge) fetch <a download> links straight from the web
+      // server, which returns 404. So fetch the file from the page, which goes
+      // through the service worker, and save it from a local blob: URL.
+      function fileName(cd) {
+        var m = /filename\\*\\s*=\\s*UTF-8''([^;]+)/i.exec(cd || '');
+        if (m) return decodeURIComponent(m[1]);
+        m = /filename\\s*=\\s*([^;]+)/i.exec(cd || '');
+        return m ? m[1].trim().replace(/^['\\x22]|['\\x22]$/g, '') : 'download';
+      }
+      document.addEventListener('click', function(e) {
+        var a = e.target.closest && e.target.closest('a.shiny-download-link');
+        if (!a || !a.getAttribute('href') || a.classList.contains('disabled')) return;
+        e.preventDefault();
+        e.stopPropagation();
+        fetch(a.href, {credentials: 'same-origin'}).then(function(r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          var name = fileName(r.headers.get('Content-Disposition'));
+          return r.blob().then(function(blob) {
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.href = url;
+            link.download = name;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(function() { URL.revokeObjectURL(url); link.remove(); }, 10000);
+          });
+        }).catch(function(err) {
+          alert('The download failed (' + err.message + '). Please reload the page and try again.');
+        });
+      }, true);
     });
   "))),
   sidebar = sidebar(
